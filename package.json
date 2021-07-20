@@ -1,0 +1,12 @@
+{
+  "name": "react-multiplayer-tic-tac-toe-game",
+  "version": "1.0.0",
+  "private": true,
+  "workspaces": [
+    "packages/*"
+  ],
+  "devDependencies": {
+    "lerna": "^4.0.0",
+    "typescript": "^4.3.5"
+  }
+}
