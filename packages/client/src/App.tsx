@@ -1,5 +1,6 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import styled from 'styled-components';
+import { io } from 'socket.io-client';
 
 const AppContainer = styled.div`
   width: 100%;
@@ -11,6 +12,14 @@ const AppContainer = styled.div`
 `;
 
 function App() {
+  const connect = () => {
+    const socket = io('http://localhost:9000');
+  };
+
+  useEffect(() => {
+    connect();
+  }, []);
+
   return (
     <AppContainer>
       <h1>Welcome to Tic-Tac-Toe</h1>
