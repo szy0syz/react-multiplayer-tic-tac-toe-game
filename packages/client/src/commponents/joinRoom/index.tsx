@@ -1,5 +1,6 @@
-import React from 'react';
+import React, { useState, useContext } from 'react';
 import styled from 'styled-components';
+import gameContext from '../../gameContext';
 
 interface IJoinRoomProps {}
 
@@ -43,11 +44,26 @@ const JoinButton = styled.button`
 `;
 
 export function JoinRoom(props: IJoinRoomProps) {
+  const [roomName, setRoomName] = useState('');
+
+  const { setInRoom, isInRoom } = useContext(gameContext);
+
+  const handleRoomNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setRoomName(value);
+  };
+
+  const joinRoom = async () => {};
+
   return (
     <form>
       <JoinRoomContainer>
-        <h4>Enter</h4>
-        <RoomIdInput />
+        <h4>Enter Room ID to Join the Game</h4>
+        <RoomIdInput
+          value={roomName}
+          placeholder="Room ID"
+          onChange={handleRoomNameChange}
+        />
         <JoinButton>Join</JoinButton>
       </JoinRoomContainer>
     </form>

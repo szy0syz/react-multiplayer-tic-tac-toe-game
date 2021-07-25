@@ -1,7 +1,9 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { io } from 'socket.io-client';
 import socketService from './services/socketService';
+import { JoinRoom } from './commponents/joinRoom';
+import GameContext, { IGameContextProps } from './gameContext';
 
 const AppContainer = styled.div`
   width: 100%;
@@ -26,6 +28,8 @@ const MainContainer = styled.div`
 `;
 
 function App() {
+  const [isInRoom, setInRoom] = useState(false);
+
   const connectSocket = async () => {
     const socket = await socketService
       .connect('http://localhost:9000')
@@ -38,11 +42,20 @@ function App() {
     connectSocket();
   }, []);
 
+  const gameContextValue: IGameContextProps = {
+    isInRoom,
+    setInRoom,
+  };
+
   return (
-    <AppContainer>
-      <WelcomeText>Welcome to Tic-Tac-Toe</WelcomeText>
-      <MainContainer></MainContainer>
-    </AppContainer>
+    <GameContext.Provider value={gameContextValue}>
+      <AppContainer>
+        <WelcomeText>Welcome to Tic-Tac-Toe</WelcomeText>
+        <MainContainer>
+          <JoinRoom />
+        </MainContainer>
+      </AppContainer>
+    </GameContext.Provider>
   );
 }
 
