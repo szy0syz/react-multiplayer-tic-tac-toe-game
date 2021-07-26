@@ -1,6 +1,8 @@
-import { useContext, useState } from 'react';
+import { useContext, useState, useEffect } from 'react';
 import styled from 'styled-components';
 import gameContext from '../../gameContext';
+import gameService from '../../services/gameService';
+import socketService from '../../services/socketService';
 
 const GameContainer = styled.div`
   display: flex;
@@ -66,22 +68,21 @@ const O = styled.span`
   }
 `;
 
-export type IPlayMatrix = Array<Array<string | null>>;
 export interface IStartGame {
   start: boolean;
   symbol: 'x' | 'o';
 }
 
-export type iPlayerMatrix = Array<Array<String | null>>;
+export type IPlayerMatrix = Array<Array<String | null>>;
 
 export function Game() {
-  const [matrix, setMatrix] = useState<iPlayerMatrix>([
+  const [matrix, setMatrix] = useState<IPlayerMatrix>([
     [null, null, null],
     [null, null, null],
     [null, null, null],
   ]);
 
-  const {playerSymbol, setPlayerSymbol } = useContext(gameContext)
+  const { playerSymbol, setPlayerSymbol } = useContext(gameContext);
 
   const updateGameMatrix = (column: number, row: number, symbol: 'x' | 'o') => {
     const newMatrix = [...matrix];
@@ -90,7 +91,26 @@ export function Game() {
       newMatrix[row][column] = symbol;
       setMatrix(newMatrix);
     }
+
+    if (socketService.socket) {
+      gameService.updateGame(socketService.socket, newMatrix);
+    }
   };
+
+  const handleGameUpdate = () => {
+    if (socketService.socket) {
+      gameService.onGameUpdate(
+        socketService.socket,
+        (newMatrix: IPlayerMatrix) => {
+          setMatrix(newMatrix);
+        }
+      );
+    }
+  };
+
+  useEffect(() => {
+    handleGameUpdate();
+  }, []);
 
   return (
     <GameContainer>
@@ -103,7 +123,9 @@ export function Game() {
                 borderLeft={columnIdx > 0}
                 borderBottom={rowIdx < 2}
                 borderTop={rowIdx > 0}
-                onClick={() => updateGameMatrix(columnIdx, rowIdx, playerSymbol)}
+                onClick={() =>
+                  updateGameMatrix(columnIdx, rowIdx, playerSymbol)
+                }
               >
                 {column && column !== 'null' ? (
                   column === 'x' ? (
