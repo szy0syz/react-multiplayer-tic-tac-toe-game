@@ -16,13 +16,14 @@ export class RoomController {
     @MessageBody() message: any
   ) {
     console.log('New User joining room:', message);
-
+    console.log('@socket.rooms.values()', socket.rooms);
+    console.log('@io.sockets.adapter.rooms', io.sockets.adapter.rooms);
     const connectedSockets = io.sockets.adapter.rooms.get(message.roomId);
     const socketRooms = Array.from(socket.rooms.values()).filter(
       (r) => r !== socket.id
     );
-
-    if (socketRooms.length > 0 || connectedSockets.size === 2) {
+    console.log(socketRooms, connectedSockets);
+    if (socketRooms.length > 0 || connectedSockets?.size === 2) {
       socket.emit('room_join_error', {
         error: 'Room is full please choose another room to play!',
       });

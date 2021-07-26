@@ -1,6 +1,8 @@
 import React, { useState, useContext } from 'react';
 import styled from 'styled-components';
 import gameContext from '../../gameContext';
+import gameService from '../../services/gameService';
+import socketService from '../../services/socketService';
 
 interface IJoinRoomProps {}
 
@@ -35,6 +37,7 @@ const JoinButton = styled.button`
   transition: all 230ms ease-in-out;
   margin-top: 1em;
   cursor: pointer;
+  user-select: none;
 
   &:hover {
     background-color: transparent;
@@ -45,6 +48,7 @@ const JoinButton = styled.button`
 
 export function JoinRoom(props: IJoinRoomProps) {
   const [roomName, setRoomName] = useState('');
+  const [isJoining, setJoining] = useState(false);
 
   const { setInRoom, isInRoom } = useContext(gameContext);
 
@@ -53,10 +57,30 @@ export function JoinRoom(props: IJoinRoomProps) {
     setRoomName(value);
   };
 
-  const joinRoom = async () => {};
+  const joinRoom = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    const socket = socketService.socket;
+
+    if (!roomName || roomName.trim() === '' || !socket) return;
+
+    setJoining(true);
+
+    const joined = await gameService
+      .joinGameRoom(socket!, roomName)
+      .catch((err) => {
+        alert(err);
+      });
+
+    if (joined) {
+      setInRoom(true);
+    }
+
+    setJoining(false);
+  };
 
   return (
-    <form>
+    <form onSubmit={joinRoom}>
       <JoinRoomContainer>
         <h4>Enter Room ID to Join the Game</h4>
         <RoomIdInput
@@ -64,7 +88,9 @@ export function JoinRoom(props: IJoinRoomProps) {
           placeholder="Room ID"
           onChange={handleRoomNameChange}
         />
-        <JoinButton>Join</JoinButton>
+        <JoinButton type="submit" disabled={isJoining}>
+          {isJoining ? 'Joining...' : 'Join'}
+        </JoinButton>
       </JoinRoomContainer>
     </form>
   );
