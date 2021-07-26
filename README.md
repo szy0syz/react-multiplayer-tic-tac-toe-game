@@ -1,6 +1,6 @@
 # react
 
-> 01-13-09
+> 01-54-00
 
 ## Server
 
@@ -33,3 +33,31 @@
 
 - 当对同一 `action` 含义的时间响应时，应加 `on_xxxx_xxxx`
 - 否则前后端发送监听都用同一个事件，太难辨别，不好维护
+
+```ts
+// class GameService
+public async onGameUpdate(
+  socket: Socket,
+  listiner: (matrix: IPlayerMatrix) => void
+) {
+  socket.on('on_update_game', listiner);
+}
+// -----------------
+
+const handleGameUpdate = () => {
+  if (socketService.socket) {
+    gameService.onGameUpdate(
+      socketService.socket,
+      (newMatrix: IPlayerMatrix) => {
+        setMatrix(newMatrix);
+      }
+    );
+  }
+};
+
+useEffect(() => {
+  handleGameUpdate();
+}, []);
+```
+
+> 丝般顺滑
