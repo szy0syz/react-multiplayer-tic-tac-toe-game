@@ -91,6 +91,56 @@ export function Game() {
     isGameStarted,
   } = useContext(gameContext);
 
+  const checkGameState = (matrix: IPlayerMatrix) => {
+    // 行级比较，若有一行全是一样就判赢
+    for (let i = 0; i < matrix.length; i++) {
+      let row = [];
+      for (let j = 0; j < matrix[i].length; j++) {
+        row.push(matrix[i][j]);
+      }
+
+      if (row.every((value) => value && value === playerSymbol)) {
+        return [true, false];
+      } else if (row.every((value) => value && value !== playerSymbol)) {
+        return [false, true];
+      }
+    }
+
+      // 列级比较，若有一列全是一样就判赢
+    for (let i = 0; i < matrix.length; i++) {
+      let column = [];
+      for (let j = 0; j < matrix[i].length; j++) {
+        column.push(matrix[j][i]);
+      }
+
+      if (column.every((value) => value && value === playerSymbol)) {
+        return [true, false];
+      } else if (column.every((value) => value && value !== playerSymbol)) {
+        return [false, true];
+      }
+    }
+
+    // 比较对角线
+    if (matrix[1][1]) {
+      if (matrix[0][0] === matrix[1][1] && matrix[2][2] === matrix[1][1]) {
+        if (matrix[1][1] === playerSymbol) return [true, false];
+        else return [false, true];
+      }
+
+      if (matrix[2][0] === matrix[1][1] && matrix[0][2] === matrix[1][1]) {
+        if (matrix[1][1] === playerSymbol) return [true, false];
+        else return [false, true];
+      }
+    }
+
+    //Check for a tie
+    if (matrix.every((m: any) => m.every((v: any) => v !== null))) {
+      return [true, true];
+    }
+
+    return [false, false];
+  };
+
   const updateGameMatrix = (column: number, row: number, symbol: 'x' | 'o') => {
     const newMatrix = [...matrix];
 
@@ -137,9 +187,17 @@ export function Game() {
     handleGameStart();
   }, []);
 
+  useEffect(() => {
+    console.log('matrix change !!');
+    const state = checkGameState(matrix);
+    console.log('game_state', state);
+  }, [matrix]);
+
   return (
     <GameContainer>
-      {!isGameStarted && <h2>Waiting for Other Player to Join to Start Game!</h2>}
+      {!isGameStarted && (
+        <h2>Waiting for Other Player to Join to Start Game!</h2>
+      )}
       {(!isGameStarted || !isPlayerTurn) && <PlayStopper />}
       {matrix.map((row, rowIdx) => {
         return (
