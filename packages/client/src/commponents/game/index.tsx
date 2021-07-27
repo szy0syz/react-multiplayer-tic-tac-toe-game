@@ -101,6 +101,7 @@ export function Game() {
 
     if (socketService.socket) {
       gameService.updateGame(socketService.socket, newMatrix);
+      setPlayerTurn(false);
     }
   };
 
