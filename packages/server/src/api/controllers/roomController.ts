@@ -30,6 +30,15 @@ export class RoomController {
     } else {
       await socket.join(message.roomId);
       socket.emit('room_joined');
+
+      if (io.sockets.adapter.rooms.get(message.roomId).size === 2) {
+        //! 发送给第二个进入房间的玩家开始游戏，让其先下棋，并选择x
+        socket.emit('start_game', { start: true, symbol: 'x' });
+        //! 发送给房间其他人开始游戏，但等另一个玩家下棋，并选择o
+        socket
+          .to(message.roomId)
+          .emit('start_game', { start: false, symbol: 'o' });
+      }
     }
   }
 }

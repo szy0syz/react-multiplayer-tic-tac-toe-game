@@ -82,7 +82,14 @@ export function Game() {
     [null, null, null],
   ]);
 
-  const { playerSymbol, setPlayerSymbol } = useContext(gameContext);
+  const {
+    playerSymbol,
+    setPlayerSymbol,
+    setPlayerTurn,
+    isPlayerTurn,
+    setGameStarted,
+    isGameStarted,
+  } = useContext(gameContext);
 
   const updateGameMatrix = (column: number, row: number, symbol: 'x' | 'o') => {
     const newMatrix = [...matrix];
@@ -103,17 +110,36 @@ export function Game() {
         socketService.socket,
         (newMatrix: IPlayerMatrix) => {
           setMatrix(newMatrix);
+          setPlayerTurn(true);
         }
       );
     }
   };
 
+  const handleGameStart = () => {
+    if (socketService.socket) {
+      gameService.onStartGame(socketService.socket, (options) => {
+        setGameStarted(true);
+        setPlayerSymbol(options.symbol);
+        if (options.start) {
+          setPlayerTurn(true);
+        } else {
+          setPlayerTurn(false);
+        }
+      });
+    }
+  };
+
   useEffect(() => {
+    //! 两者都是绑定监听的
     handleGameUpdate();
+    handleGameStart();
   }, []);
 
   return (
     <GameContainer>
+      {!isGameStarted && <h2>Waiting for Other Player to Join to Start Game!</h2>}
+      {(!isGameStarted || !isPlayerTurn) && <PlayStopper />}
       {matrix.map((row, rowIdx) => {
         return (
           <RowContainer>

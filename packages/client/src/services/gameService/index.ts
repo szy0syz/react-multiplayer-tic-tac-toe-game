@@ -1,4 +1,4 @@
-import { IPlayerMatrix } from './../../commponents/game/index';
+import { IPlayerMatrix, IStartGame } from './../../commponents/game/index';
 import { Socket } from 'socket.io-client';
 
 class GameService {
@@ -19,6 +19,13 @@ class GameService {
     listiner: (matrix: IPlayerMatrix) => void
   ) {
     socket.on('on_update_game', listiner);
+  }
+
+  public async onStartGame(
+    socket: Socket,
+    listiner: (options: IStartGame) => void
+  ) {
+    socket.on('start_game', listiner);
   }
 }
 
